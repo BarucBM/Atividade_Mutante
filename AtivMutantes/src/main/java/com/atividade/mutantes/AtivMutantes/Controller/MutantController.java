@@ -113,7 +113,7 @@ public class MutantController {
                 BeanUtils.copyProperties(mutantAtSchoolDto, mutant);
                 mutantRepository.save(mutant);
                 return ResponseEntity.status(HttpStatus.OK).body("Mutant " + name + " left!");
-                
+
             }else{
             return ResponseEntity.status(HttpStatus.OK).body("Status not changed!");
         }
