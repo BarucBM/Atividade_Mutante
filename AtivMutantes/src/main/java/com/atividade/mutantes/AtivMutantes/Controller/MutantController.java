@@ -91,9 +91,11 @@ public class MutantController {
     @PutMapping("/atSchool/{name}")
     public ResponseEntity<Object> updateAtSchool(@PathVariable(value = "name")String name, @RequestBody @Valid MutantAtSchoolDto mutantAtSchoolDto){
         MutantModel mutant = mutantRepository.findMutantByName(name);
-        if (mutant == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mutant not found!");
-        else{
-            if (!mutant.getAtSchool() && mutantAtSchoolDto.atSchool()){
+        if (mutant == null)                                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mutant not found!");
+
+        else if (mutant.getPassword() != "Apocalipse")      return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Wrong password!");
+
+        else if (!mutant.getAtSchool() && mutantAtSchoolDto.atSchool()){
                 DevsModel record = new DevsModel();
                 record.setMutant(mutantRepository.findMutantByName(name));
                 record.setEntry(LocalDateTime.now());
@@ -101,6 +103,7 @@ public class MutantController {
                 BeanUtils.copyProperties(mutantAtSchoolDto, mutant);
                 mutantRepository.save(mutant);
                 return ResponseEntity.status(HttpStatus.OK).body("Mutante " + name + " arrived!");
+
             } else if (mutant.getAtSchool() && !mutantAtSchoolDto.atSchool()) {
                 DevsModel record = mutant.getDevs()
                         .stream().max(Comparator.comparingLong(DevsModel::getId))
@@ -109,11 +112,13 @@ public class MutantController {
                 devsRepository.save(record);
                 BeanUtils.copyProperties(mutantAtSchoolDto, mutant);
                 mutantRepository.save(mutant);
-                return ResponseEntity.status(HttpStatus.OK).body("Mutante " + name + " left!");
-            }
+                return ResponseEntity.status(HttpStatus.OK).body("Mutant " + name + " left!");
+                
+            }else{
             return ResponseEntity.status(HttpStatus.OK).body("Status not changed!");
         }
     }
+
 
     @DeleteMapping("/{id}")
     public  ResponseEntity<String> deleteMutant (@PathVariable(value="id") UUID id){
